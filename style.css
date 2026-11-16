@@ -1,0 +1,130 @@
+
+@page {
+  size: landscape;                 /* size: landscape */
+  marks: none;                     /* marks: none */
+  page: auto;                      /* page: auto */
+}
+.new-page {
+  page-break-after: always;        /* page-break-after: always */
+  page: auto;                      /* page: auto */
+}
+p, fieldset {
+  widows: 2;                       /* widows: <ціле> */
+  orphans: 2;                      /* orphans: <ціле> */
+}
+
+body {
+  font-family: 'Lucida Sans Unicode', Times, Geneva, Tahoma, cursive;
+  font-weight: 300;                /* font-weight: 300 */
+  font-size: 16px;                 /* font-size: <розмір> */
+  font-style: normal;              /* font-style: normal */
+  font-variant: small-caps;        /* font-variant: small-caps */
+  font-stretch: normal;            /* font-stretch: normal */
+  background: #e8f7ff;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 30px 40px;
+}
+
+h1 {
+  font-family: cursive;            /* font-family: cursive */
+  font-weight: 500;                /* font-weight: 500 */
+  font-size: 30px;
+  font-variant: small-caps;
+  font-stretch: ultra-expanded;    /* font-stretch: ultra-expanded */
+  text-align: right;               /* text-align: right */
+  text-transform: capitalize;      /* text-transform: capitalize */
+  word-spacing: 6px;               /* word-spacing: <розмір> */
+}
+
+h2 {
+  font-family: Times, serif;       /* font-family: Times */
+  font-weight: 500;
+  font-stretch: condensed;         /* font-stretch: condensed */
+  font-variant: small-caps;
+}
+
+.note {
+  text-indent: 5%;                 /* text-indent: <процент> */
+  font-family: Geneva, Tahoma, sans-serif;   /* Geneva, Tahoma */
+  font-stretch: ultra-condensed;   /* font-stretch: ultra-condensed */
+}
+
+.pre-text {
+  white-space: pre;                /* white-space: pre */
+  font-family: Tahoma, sans-serif;
+}
+
+.sys-font {
+  font: caption;                   /* font: caption */
+  font-variant: small-caps;
+  font-style: normal;
+}
+
+fieldset {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #ffffff;
+}
+.lg {
+  padding: 0 4px;
+  font-weight: 500;
+  color: #003366;
+}
+.lb {
+  display: inline-block;
+  width: 190px;
+  vertical-align: top;
+  margin: 6px;
+}
+em {
+  color: #ff0000;
+  font-style: normal;
+  font-weight: 500;
+}
+input:not([type=checkbox]):not([type=image]):not([type=color]),
+select, textarea {
+  width: 260px;
+}
+textarea {
+  height: 70px;
+}
+input:focus, textarea:focus {
+  background: #eaeaea;
+}
+input[type=submit], input[type=reset], button {
+  padding: 8px 14px;
+}
+.out {
+  display: inline-block;
+  min-width: 80px;
+  padding: 2px 8px;
+  background: #ffffe0;
+  border: 1px solid #aaaaaa;
+}
+.err { color: #cc0000; font-weight: 500; }
+.ok  { color: #007700; font-weight: 500; }
+
+@media aural, speech {
+  h1 {
+    volume: soft;                              /* volume: soft */
+    azimuth: right-side;                       /* azimuth: right-side */
+    elevation: below;                          /* elevation: below */
+    speech-rate: faster;                       /* speech-rate: faster */
+    voice-family: male;                        /* voice-family */
+    pitch-range: 60;                           /* pitch-range */
+    stress: 50;                                /* stress */
+  }
+  legend {
+    volume: x-loud;                            /* volume: x-loud */
+    speech-rate: fast;                         /* speech-rate: fast */
+    play-during: url(bg.wav) mix repeat;       /* play-during: <uri> mix? repeat? */
+    cue-before: url(ding.wav);                 /* cue-before */
+    cue-after: url(dong.wav);                  /* cue-after */
+    cue: url(ding.wav) url(dong.wav);          /* cue: <звуковий-сигнал>{1,2} */
+  }
+  output, .num {
+    speak: normal;                             /* speak: normal */
+    speak-numeral: continuous;                 /* speak-numeral: continuous */
+  }
+}

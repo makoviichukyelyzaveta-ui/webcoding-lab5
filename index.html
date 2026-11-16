@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="Author" content="Студент, варіант 9">
+<meta name="Description" content="Лабораторна робота №5. Сторінка форм. Варіант 9">
+<meta name="Keywords" content="форми, HTML5, CSS, товари, компанія">
+<title>Лабораторна робота №5. Форми. Варіант 9</title>
+<link rel="stylesheet" href="style9.css">
+<script>
+function $(id){ return document.getElementById(id); }
+
+// підрахунок суми замовлення -> <output>
+function calc(){
+  var p = parseFloat($('price').value) || 0;
+  var q = parseFloat($('qty').value) || 0;
+  $('sum').value = (p * q).toFixed(2) + ' грн';
+}
+
+// контроль введення даних при натисканні "Відправити інформацію"
+function checkForm(e){
+  e.preventDefault();               // без відправки на сервер
+  var errors = [];
+
+  if ($('cname').value.trim().length < 2)
+    errors.push("Вкажіть ім'я (мінімум 2 символи).");
+
+  if (!/^\+38\s?0\d{2}\s?\d{3}\s?\d{4}$/.test($('tel').value.trim()))
+    errors.push("Телефон має вигляд +38 0xx xxx xxxx.");
+
+  if (!/^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test($('pwd').value))
+    errors.push("Пароль: мінімум 6 символів, літери і цифри.");
+
+  if ($('goods').value.trim() === '')
+    errors.push("Вкажіть назву товару.");
+
+  if (!/^\d+(\.\d+)?$/.test($('price').value.trim()))
+    errors.push("Ціна має бути числом.");
+
+  var q = parseInt($('qty').value, 10);
+  if (isNaN(q) || q < 1 || q > 100)
+    errors.push("Кількість: від 1 до 100.");
+
+  if ($('month').value === '')
+    errors.push("Оберіть місяць поставки.");
+
+  if ($('dt').value === '')
+    errors.push("Оберіть дату й час отримання.");
+
+  if ($('comment').value.trim().length < 5)
+    errors.push("Коментар: мінімум 5 символів.");
+
+  var box = $('result');
+  if (errors.length) {
+    box.className = 'err';
+    box.innerHTML = '<b>Помилки введення:</b><br>• ' + errors.join('<br>• ');
+  } else {
+    box.className = 'ok';
+    box.textContent = 'Дані введено правильно. Інформацію прийнято.';
+  }
+  return false;
+}
+
+window.onload = function(){
+  $('orderForm').addEventListener('submit', checkForm);
+  $('price').addEventListener('input', calc);
+  $('qty').addEventListener('input', calc);
+  calc();
+};
+</script>
+</head>
+<body>
+
+<h1>Фірма «ТехноСвіт» — замовлення товарів</h1>
+<p class="note">Заповніть форму. Обов'язкові поля помічені <em>*</em></p>
+
+<!-- FORM: dir, id, enctype, novalidate, action, accept -->
+<form id="orderForm" dir="ltr" action="#" enctype="multipart/form-data"
+      novalidate accept="text/plain, image/*">
+
+  <fieldset>
+    <!-- LEGEND: class, id, title -->
+    <legend class="lg" id="lg1" title="Дані замовника">Контактна інформація</legend>
+
+    <!-- LABEL: id, form, class -->
+    <label class="lb" id="lb1" for="cname" form="orderForm">Ім'я <em>*</em></label>
+    <input id="cname" name="cname" type="search" title="Ім'я замовника"
+           placeholder="Петро Степанович" required
+           pattern="[A-Za-zА-Яа-яІіЇїЄєҐґ' ]{2,}"><br>
+
+    <label class="lb" id="lb2" for="tel" form="orderForm">Телефон <em>*</em></label>
+    <input id="tel" name="tel" type="tel" title="Формат: +38 0xx xxx xxxx"
+           placeholder="+38 0xx xxx xxxx" required
+           pattern="\+38\s?0\d{2}\s?\d{3}\s?\d{4}"><br>
+
+    <label class="lb" id="lb3" for="pwd" form="orderForm">Пароль <em>*</em></label>
+    <input id="pwd" name="pwd" type="password"
+           title="Мінімум 6 символів, літери і цифри"
+           required pattern="(?=.*\d)(?=.*[A-Za-z]).{6,}"><br>
+  </fieldset>
+
+  <fieldset>
+    <legend class="lg" id="lg2" title="Що замовляємо">Інформація про товар</legend>
+
+    <label class="lb" id="lb4" for="goods" form="orderForm">Товар <em>*</em></label>
+    <input id="goods" name="goods" type="search" list="dl_goods"
+           title="Почніть вводити назву товару" placeholder="Ноутбук" required>
+    <!-- DATALIST: id, dir, lang -->
+    <datalist id="dl_goods" dir="ltr" lang="uk">
+      <option value="Ноутбук">
+      <option value="Смартфон">
+      <option value="Планшет">
+      <option value="Монітор">
+      <option value="Навушники">
+    </datalist><br>
+
+    <label class="lb" id="lb5" for="cat" form="orderForm">Категорія</label>
+    <select id="cat" name="cat">
+      <!-- OPTGROUP: id, lang, title -->
+      <optgroup id="og1" lang="uk" title="Комп'ютерна техніка" label="Комп'ютери">
+        <option>Ноутбуки</option>
+        <option>Монітори</option>
+      </optgroup>
+      <optgroup id="og2" lang="uk" title="Мобільні пристрої" label="Мобільні пристрої">
+        <option>Смартфони</option>
+        <option>Планшети</option>
+      </optgroup>
+    </select><br>
+
+    <label class="lb" id="lb6" for="price" form="orderForm">Ціна за одиницю, грн</label>
+    <input id="price" name="price" type="search" title="Ціна" value="1000"
+           pattern="[0-9]+(\.[0-9]+)?"><br>
+
+    <label class="lb" id="lb7" for="qty" form="orderForm">Кількість <em>*</em></label>
+    <input id="qty" name="qty" type="search" title="Кількість, від 1 до 100"
+           value="1" pattern="[0-9]{1,3}" required><br>
+
+    <label class="lb" id="lb8" form="orderForm">Сума замовлення</label>
+    <!-- OUTPUT: title, lang, class, for -->
+    <output id="sum" class="out" lang="uk" title="Загальна сума"
+            for="price qty">0.00 грн</output><br>
+
+    <label class="lb" id="lb9" for="color" form="orderForm">Бажаний колір</label>
+    <input id="color" name="color" type="color" value="#00aa88" title="Колір товару"><br>
+  </fieldset>
+
+  <fieldset>
+    <legend class="lg" id="lg3" title="Терміни">Дата й час поставки</legend>
+
+    <label class="lb" id="lb10" for="month" form="orderForm">Місяць поставки <em>*</em></label>
+    <input id="month" name="month" type="month" max="2027-12"
+           title="Місяць (до грудня 2027)" required><br>
+
+    <label class="lb" id="lb11" for="dt" form="orderForm">Дата і час отримання <em>*</em></label>
+    <input id="dt" name="dt" type="datetime-local" step="900"
+           max="2027-12-31T23:59" title="Крок 15 хвилин" required><br>
+  </fieldset>
+
+  <fieldset>
+    <legend class="lg" id="lg4" title="Додаткові відомості">Коментарі</legend>
+
+    <!-- TEXTAREA: id, placeholder, wrap, required, name, title, disabled -->
+    <label class="lb" id="lb12" for="comment" form="orderForm">Побажання <em>*</em></label>
+    <textarea id="comment" name="comment" wrap="soft" required
+              title="Ваші побажання до замовлення"
+              placeholder="Доставка вранці, подарункове пакування, ..."></textarea><br>
+
+    <label class="lb" id="lb13" for="sys" form="orderForm">Службове поле</label>
+    <textarea id="sys" name="sys" disabled title="Поле заблоковане">Недоступне для редагування</textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend class="lg" id="lg5" title="Захист даних">Ключ шифрування</legend>
+    <label class="lb" id="lb14" for="kg" form="orderForm">Генератор ключа</label>
+    <!-- KEYGEN: disabled, lang, style, title, name (застарілий тег) -->
+    <keygen id="kg" name="security" disabled lang="uk" style="width:150px"
+            title="Генерація ключа">
+  </fieldset>
+
+  <!-- DETAILS: style, title, open -->
+  <details style="margin-bottom:15px; background:#fff; padding:8px;"
+           title="Умови доставки" open>
+    <summary>Умови доставки</summary>
+    <p>Доставка по Україні від 1 до 3 днів. При замовленні від 5000 грн — безкоштовно.</p>
+    <p class="pre-text">Пн-Пт   9:00 - 18:00
+Сб      10:00 - 15:00</p>
+  </details>
+
+  <p class="sys-font">Системний шрифт <span class="num">(font: caption)</span></p>
+
+  <p id="result"></p>
+
+  <p>
+    <!-- INPUT submit: formmethod, formaction, formtarget, formenctype, title -->
+    <input type="submit" value="Відправити інформацію"
+           formmethod="post" formaction="#" formtarget="_self"
+           formenctype="multipart/form-data" title="Перевірити та відправити">
+
+    <!-- INPUT reset -->
+    <input type="reset" value="Очистити форму" title="Скинути значення">
+
+    <!-- INPUT image: src, alt, height -->
+    <input type="image" id="imgbtn" name="imgbtn" alt="Відправити (картинка)"
+           height="32" title="Графічна кнопка відправки"
+           formmethod="get" formaction="#" formtarget="_self"
+           formenctype="application/x-www-form-urlencoded"
+           src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='32'><rect width='90' height='32' rx='6' fill='%23007a99'/><text x='45' y='21' font-size='13' fill='white' text-anchor='middle'>OK</text></svg>">
+
+    <!-- BUTTON: autofocus, formenctype, name, formtarget -->
+    <button type="submit" name="btn_alt" autofocus
+            formenctype="multipart/form-data" formtarget="_self"
+            formaction="#">Кнопка &lt;button&gt;</button>
+  </p>
+</form>
+
+<p class="new-page"></p>
+</body>
+</html>

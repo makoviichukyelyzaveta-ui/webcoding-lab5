@@ -2,53 +2,75 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="Author" content="Студент, варіант 9">
-<meta name="Description" content="Лабораторна робота №5. Сторінка форм. Варіант 9">
-<meta name="Keywords" content="форми, HTML5, CSS, товари, компанія">
-<title>Лабораторна робота №5. Форми. Варіант 9</title>
+<meta name="Author" content="Makoviychuk Liza">
+<meta name="Description" content="Лабораторна робота №5. Форма замовлення магазину косметики. Варіант 9">
+<meta name="Keywords" content="косметика, форми, HTML5, CSS, магазин">
+<title>Лабораторна робота №5. Магазин косметики. Варіант 9</title>
 <link rel="stylesheet" href="style9.css">
 <script>
 function $(id){ return document.getElementById(id); }
 
-// підрахунок суми замовлення -> <output>
+var PRICES = {
+  "Помада": 350, "Тональний крем": 520, "Туш для вій": 280,
+  "Парфумована вода": 1450, "Крем для обличчя": 640,
+  "Сироватка з вітаміном С": 890, "Лак для нігтів": 120
+};
+
+var RULES = {
+  cname:   ["Ім'я",      function(v){ return v.trim().length >= 2; }],
+  tel:     ["Телефон",   function(v){ return /^\+38\s?0\d{2}\s?\d{3}\s?\d{4}$/.test(v.trim()); }],
+  pwd:     ["Пароль",    function(v){ return /^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test(v); }],
+  goods:   ["Товар",     function(v){ return v.trim() !== ''; }],
+  qty:     ["Кількість", function(v){ var n = parseInt(v, 10); return !isNaN(n) && n >= 1 && n <= 100; }],
+  month:   ["Місяць",    function(v){ return v !== ''; }],
+  dt:      ["Дата й час",function(v){ return v !== ''; }],
+  comment: ["Побажання", function(v){ return v.trim().length >= 5; }]
+};
+var MESSAGES = {
+  cname:   "Вкажіть ім'я (мінімум 2 символи).",
+  tel:     "Телефон має вигляд +38 0xx xxx xxxx.",
+  pwd:     "Пароль: мінімум 6 символів, літери і цифри.",
+  goods:   "Вкажіть назву товару.",
+  qty:     "Кількість: від 1 до 100.",
+  month:   "Оберіть місяць доставки.",
+  dt:      "Оберіть дату й час отримання.",
+  comment: "Побажання: мінімум 5 символів."
+};
+
 function calc(){
   var p = parseFloat($('price').value) || 0;
   var q = parseFloat($('qty').value) || 0;
   $('sum').value = (p * q).toFixed(2) + ' грн';
 }
 
-// контроль введення даних при натисканні "Відправити інформацію"
+function updateTracker(){
+  var total = 0, done = 0;
+  for (var id in RULES) {
+    total++;
+    var ok = RULES[id][1]($(id).value);
+    if (ok) done++;
+    $('st_' + id).className = ok ? 'step done' : 'step';
+  }
+  var percent = Math.round(done / total * 100);
+  $('prog').value = percent;
+  $('prog').textContent = percent + '%';
+  $('pct').textContent = percent + '%';
+  $('cnt').textContent = 'Заповнено ' + done + ' з ' + total + ' обов\u2019язкових полів';
+}
+
+function onGoods(){
+  var v = $('goods').value;
+  if (PRICES[v] !== undefined) { $('price').value = PRICES[v]; }
+  calc();
+}
 function checkForm(e){
   e.preventDefault();               // без відправки на сервер
   var errors = [];
-
-  if ($('cname').value.trim().length < 2)
-    errors.push("Вкажіть ім'я (мінімум 2 символи).");
-
-  if (!/^\+38\s?0\d{2}\s?\d{3}\s?\d{4}$/.test($('tel').value.trim()))
-    errors.push("Телефон має вигляд +38 0xx xxx xxxx.");
-
-  if (!/^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test($('pwd').value))
-    errors.push("Пароль: мінімум 6 символів, літери і цифри.");
-
-  if ($('goods').value.trim() === '')
-    errors.push("Вкажіть назву товару.");
-
+  for (var id in RULES) {
+    if (!RULES[id][1]($(id).value)) errors.push(MESSAGES[id]);
+  }
   if (!/^\d+(\.\d+)?$/.test($('price').value.trim()))
     errors.push("Ціна має бути числом.");
-
-  var q = parseInt($('qty').value, 10);
-  if (isNaN(q) || q < 1 || q > 100)
-    errors.push("Кількість: від 1 до 100.");
-
-  if ($('month').value === '')
-    errors.push("Оберіть місяць поставки.");
-
-  if ($('dt').value === '')
-    errors.push("Оберіть дату й час отримання.");
-
-  if ($('comment').value.trim().length < 5)
-    errors.push("Коментар: мінімум 5 символів.");
 
   var box = $('result');
   if (errors.length) {
@@ -56,23 +78,49 @@ function checkForm(e){
     box.innerHTML = '<b>Помилки введення:</b><br>• ' + errors.join('<br>• ');
   } else {
     box.className = 'ok';
-    box.textContent = 'Дані введено правильно. Інформацію прийнято.';
+    box.textContent = 'Дякуємо! Замовлення прийнято, дані введено правильно.';
   }
   return false;
 }
 
 window.onload = function(){
-  $('orderForm').addEventListener('submit', checkForm);
+  var f = $('orderForm');
+  f.addEventListener('submit', checkForm);
+  f.addEventListener('input', updateTracker);
+  f.addEventListener('change', updateTracker);
+  f.addEventListener('reset', function(){
+    setTimeout(function(){ updateTracker(); calc(); $('result').textContent = ''; }, 0);
+  });
+  $('goods').addEventListener('input', onGoods);
   $('price').addEventListener('input', calc);
   $('qty').addEventListener('input', calc);
   calc();
+  updateTracker();
 };
 </script>
 </head>
 <body>
 
-<h1>Фірма «ТехноСвіт» — замовлення товарів</h1>
-<p class="note">Заповніть форму. Обов'язкові поля помічені <em>*</em></p>
+<h1>Магазин косметики «Beauty Glow»</h1>
+<div class="tracker">
+  <div class="tracker-head">
+    <span id="cnt">Заповнено 0 з 8 обов’язкових полів</span>
+    <span id="pct" class="num">0%</span>
+  </div>
+  <progress id="prog" class="prog" value="0" max="100" title="Заповненість форми">0%</progress>
+  <div class="tracker-steps">
+    <span class="step" id="st_cname">Ім’я</span>
+    <span class="step" id="st_tel">Телефон</span>
+    <span class="step" id="st_pwd">Пароль</span>
+    <span class="step" id="st_goods">Товар</span>
+    <span class="step" id="st_qty">Кількість</span>
+    <span class="step" id="st_month">Місяць</span>
+    <span class="step" id="st_dt">Дата й час</span>
+    <span class="step" id="st_comment">Побажання</span>
+  </div>
+</div>
+
+<p class="note">Оформіть замовлення на косметику. Обов'язкові поля помічені <em>*</em></p>
 
 <!-- FORM: dir, id, enctype, novalidate, action, accept -->
 <form id="orderForm" dir="ltr" action="#" enctype="multipart/form-data"
@@ -80,12 +128,12 @@ window.onload = function(){
 
   <fieldset>
     <!-- LEGEND: class, id, title -->
-    <legend class="lg" id="lg1" title="Дані замовника">Контактна інформація</legend>
+    <legend class="lg" id="lg1" title="Дані покупця">Контактна інформація</legend>
 
     <!-- LABEL: id, form, class -->
     <label class="lb" id="lb1" for="cname" form="orderForm">Ім'я <em>*</em></label>
-    <input id="cname" name="cname" type="search" title="Ім'я замовника"
-           placeholder="Петро Степанович" required
+    <input id="cname" name="cname" type="search" title="Ім'я покупця"
+           placeholder="Олена Коваленко" required
            pattern="[A-Za-zА-Яа-яІіЇїЄєҐґ' ]{2,}"><br>
 
     <label class="lb" id="lb2" for="tel" form="orderForm">Телефон <em>*</em></label>
@@ -93,42 +141,50 @@ window.onload = function(){
            placeholder="+38 0xx xxx xxxx" required
            pattern="\+38\s?0\d{2}\s?\d{3}\s?\d{4}"><br>
 
-    <label class="lb" id="lb3" for="pwd" form="orderForm">Пароль <em>*</em></label>
+    <label class="lb" id="lb3" for="pwd" form="orderForm">Пароль до кабінету <em>*</em></label>
     <input id="pwd" name="pwd" type="password"
            title="Мінімум 6 символів, літери і цифри"
            required pattern="(?=.*\d)(?=.*[A-Za-z]).{6,}"><br>
   </fieldset>
 
   <fieldset>
-    <legend class="lg" id="lg2" title="Що замовляємо">Інформація про товар</legend>
+    <legend class="lg" id="lg2" title="Що замовляємо">Вибір косметики</legend>
 
     <label class="lb" id="lb4" for="goods" form="orderForm">Товар <em>*</em></label>
     <input id="goods" name="goods" type="search" list="dl_goods"
-           title="Почніть вводити назву товару" placeholder="Ноутбук" required>
+           title="Почніть вводити назву товару" placeholder="Помада" required>
     <!-- DATALIST: id, dir, lang -->
     <datalist id="dl_goods" dir="ltr" lang="uk">
-      <option value="Ноутбук">
-      <option value="Смартфон">
-      <option value="Планшет">
-      <option value="Монітор">
-      <option value="Навушники">
+      <option value="Помада">
+      <option value="Тональний крем">
+      <option value="Туш для вій">
+      <option value="Парфумована вода">
+      <option value="Крем для обличчя">
+      <option value="Сироватка з вітаміном С">
+      <option value="Лак для нігтів">
     </datalist><br>
 
     <label class="lb" id="lb5" for="cat" form="orderForm">Категорія</label>
     <select id="cat" name="cat">
       <!-- OPTGROUP: id, lang, title -->
-      <optgroup id="og1" lang="uk" title="Комп'ютерна техніка" label="Комп'ютери">
-        <option>Ноутбуки</option>
-        <option>Монітори</option>
+      <optgroup id="og1" lang="uk" title="Декоративна косметика" label="Макіяж">
+        <option>Помади та блиски</option>
+        <option>Тональні засоби</option>
+        <option>Туш та олівці</option>
       </optgroup>
-      <optgroup id="og2" lang="uk" title="Мобільні пристрої" label="Мобільні пристрої">
-        <option>Смартфони</option>
-        <option>Планшети</option>
+      <optgroup id="og2" lang="uk" title="Догляд за обличчям і тілом" label="Догляд за шкірою">
+        <option>Креми</option>
+        <option>Сироватки</option>
+        <option>Маски</option>
+      </optgroup>
+      <optgroup id="og3" lang="uk" title="Ароматичні засоби" label="Парфумерія">
+        <option>Парфумована вода</option>
+        <option>Туалетна вода</option>
       </optgroup>
     </select><br>
 
     <label class="lb" id="lb6" for="price" form="orderForm">Ціна за одиницю, грн</label>
-    <input id="price" name="price" type="search" title="Ціна" value="1000"
+    <input id="price" name="price" type="search" title="Ціна" value="350"
            pattern="[0-9]+(\.[0-9]+)?"><br>
 
     <label class="lb" id="lb7" for="qty" form="orderForm">Кількість <em>*</em></label>
@@ -140,14 +196,14 @@ window.onload = function(){
     <output id="sum" class="out" lang="uk" title="Загальна сума"
             for="price qty">0.00 грн</output><br>
 
-    <label class="lb" id="lb9" for="color" form="orderForm">Бажаний колір</label>
-    <input id="color" name="color" type="color" value="#00aa88" title="Колір товару"><br>
+    <label class="lb" id="lb9" for="color" form="orderForm">Бажаний відтінок</label>
+    <input id="color" name="color" type="color" value="#d81b60" title="Відтінок помади чи лаку"><br>
   </fieldset>
 
   <fieldset>
-    <legend class="lg" id="lg3" title="Терміни">Дата й час поставки</legend>
+    <legend class="lg" id="lg3" title="Терміни">Доставка</legend>
 
-    <label class="lb" id="lb10" for="month" form="orderForm">Місяць поставки <em>*</em></label>
+    <label class="lb" id="lb10" for="month" form="orderForm">Місяць доставки <em>*</em></label>
     <input id="month" name="month" type="month" max="2027-12"
            title="Місяць (до грудня 2027)" required><br>
 
@@ -157,16 +213,16 @@ window.onload = function(){
   </fieldset>
 
   <fieldset>
-    <legend class="lg" id="lg4" title="Додаткові відомості">Коментарі</legend>
+    <legend class="lg" id="lg4" title="Додаткові відомості">Побажання та особливості шкіри</legend>
 
     <!-- TEXTAREA: id, placeholder, wrap, required, name, title, disabled -->
     <label class="lb" id="lb12" for="comment" form="orderForm">Побажання <em>*</em></label>
     <textarea id="comment" name="comment" wrap="soft" required
-              title="Ваші побажання до замовлення"
-              placeholder="Доставка вранці, подарункове пакування, ..."></textarea><br>
+              title="Тип шкіри, алергії, побажання до замовлення"
+              placeholder="Чутлива шкіра, алергія на лаванду, подарункове пакування..."></textarea><br>
 
-    <label class="lb" id="lb13" for="sys" form="orderForm">Службове поле</label>
-    <textarea id="sys" name="sys" disabled title="Поле заблоковане">Недоступне для редагування</textarea>
+    <label class="lb" id="lb13" for="sys" form="orderForm">Програма лояльності</label>
+    <textarea id="sys" name="sys" disabled title="Поле заблоковане">Знижка постійного клієнта нараховується автоматично</textarea>
   </fieldset>
 
   <fieldset>
@@ -181,7 +237,7 @@ window.onload = function(){
   <details style="margin-bottom:15px; background:#fff; padding:8px;"
            title="Умови доставки" open>
     <summary>Умови доставки</summary>
-    <p>Доставка по Україні від 1 до 3 днів. При замовленні від 5000 грн — безкоштовно.</p>
+    <p>Доставка по Україні від 1 до 3 днів. При замовленні від 1500 грн — безкоштовно.</p>
     <p class="pre-text">Пн-Пт   9:00 - 18:00
 Сб      10:00 - 15:00</p>
   </details>
@@ -204,7 +260,7 @@ window.onload = function(){
            height="32" title="Графічна кнопка відправки"
            formmethod="get" formaction="#" formtarget="_self"
            formenctype="application/x-www-form-urlencoded"
-           src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='32'><rect width='90' height='32' rx='6' fill='%23007a99'/><text x='45' y='21' font-size='13' fill='white' text-anchor='middle'>OK</text></svg>">
+           src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='32'><rect width='90' height='32' rx='6' fill='%23ad1457'/><text x='45' y='21' font-size='13' fill='white' text-anchor='middle'>OK</text></svg>">
 
     <!-- BUTTON: autofocus, formenctype, name, formtarget -->
     <button type="submit" name="btn_alt" autofocus

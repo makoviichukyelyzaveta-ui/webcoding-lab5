@@ -225,13 +225,6 @@ window.onload = function(){
     <textarea id="sys" name="sys" disabled title="Поле заблоковане">Знижка постійного клієнта нараховується автоматично</textarea>
   </fieldset>
 
-  <fieldset>
-    <legend class="lg" id="lg5" title="Захист даних">Ключ шифрування</legend>
-    <label class="lb" id="lb14" for="kg" form="orderForm">Генератор ключа</label>
-    <!-- KEYGEN: disabled, lang, style, title, name (застарілий тег) -->
-    <keygen id="kg" name="security" disabled lang="uk" style="width:150px"
-            title="Генерація ключа">
-  </fieldset>
 
   <!-- DETAILS: style, title, open -->
   <details style="margin-bottom:15px; background:#fff; padding:8px;"
@@ -247,22 +240,19 @@ window.onload = function(){
   <p id="result"></p>
 
   <p>
-    <!-- INPUT submit: formmethod, formaction, formtarget, formenctype, title -->
+   
     <input type="submit" value="Відправити інформацію"
            formmethod="post" formaction="#" formtarget="_self"
            formenctype="multipart/form-data" title="Перевірити та відправити">
 
-    <!-- INPUT reset -->
     <input type="reset" value="Очистити форму" title="Скинути значення">
 
-    <!-- INPUT image: src, alt, height -->
     <input type="image" id="imgbtn" name="imgbtn" alt="Відправити (картинка)"
            height="32" title="Графічна кнопка відправки"
            formmethod="get" formaction="#" formtarget="_self"
            formenctype="application/x-www-form-urlencoded"
            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='32'><rect width='90' height='32' rx='6' fill='%23ad1457'/><text x='45' y='21' font-size='13' fill='white' text-anchor='middle'>OK</text></svg>">
 
-    <!-- BUTTON: autofocus, formenctype, name, formtarget -->
     <button type="submit" name="btn_alt" autofocus
             formenctype="multipart/form-data" formtarget="_self"
             formaction="#">Кнопка &lt;button&gt;</button>
